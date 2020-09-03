@@ -12,20 +12,9 @@ public class Main {
         try {
             Connection conn = DriverManager.getConnection(url);
 
-            //voer een query uit
-
             String query = "SELECT * FROM reiziger";
-
-            //bevraag de resultaten
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery(query);
-
-//            System.out.println("alle reizigers:");
-//            var i = 1;
-//            while (rs.next()){
-//                System.out.println("#" + i + ": " + rs.getString("voorletters") + " "+ rs.getString("tussenvoegsel") + " "+ rs.getString("achternaam") + " (" + rs.getString("geboortedatum") + ")");
-//                i ++;
-//            }
+            st.executeQuery(query);
 
             ReizigerDAO reizigerDAO = new ReizigerDAOPsql(conn);
             testReizigerDAO(reizigerDAO);
@@ -33,8 +22,6 @@ public class Main {
         } catch (SQLException sqlex) {
             System.err.println("kan niet worden opgehaald" + sqlex.getMessage());
         }
-
-
     }
 
     /**
@@ -58,7 +45,7 @@ public class Main {
         // Maak een nieuwe reiziger aan en persisteer deze in de database
 
         String gbdatum = "1981-03-14";
-        Reiziger sietske = new Reiziger(75, "S", "", "Boers", java.sql.Date.valueOf(gbdatum));
+        Reiziger sietske = new Reiziger(77, "S", "", "Boers", java.sql.Date.valueOf(gbdatum));
         System.out.print("[Test] Eerst " + reizigers.size() + " reizigers, na ReizigerDAO.save() ");
         rdao.save(sietske);
         reizigers = rdao.findAll();
@@ -68,14 +55,14 @@ public class Main {
 
         String gbdatumUpdate = "2002-09-17";
         Reiziger gerrit = new Reiziger(1, "G", "van", "Rijn", java.sql.Date.valueOf(gbdatum));
-        System.out.print("[Test] ReizigerDAO.update(gerrit)");
+        System.out.print("[Test] ReizigerDAO.update(gerrit)\n");
         rdao.update(gerrit);
 
 
         // definieer een reiziger aan en verwijder deze uit de database
 
         String gbdatumSietske = "1981-03-14";
-        Reiziger sietskeVerwijder = new Reiziger(77, "S", "", "Boers", java.sql.Date.valueOf(gbdatumSietske));
+        Reiziger sietskeVerwijder = new Reiziger(75, "S", "", "Boers", java.sql.Date.valueOf(gbdatumSietske));
         System.out.print("[Test] Eerst " + reizigers.size() + " reizigers, na ReizigerDAO.delete() ");
         rdao.delete(sietskeVerwijder);
         reizigers = rdao.findAll();
@@ -95,9 +82,5 @@ public class Main {
         for (Reiziger r : reizigersGeb) {
             System.out.println(r);
         }
-
-
-
-
     }
 }
