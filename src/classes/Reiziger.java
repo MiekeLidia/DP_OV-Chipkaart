@@ -15,6 +15,7 @@ public class Reiziger {
         tussenvoegsel = tv;
         achternaam = an;
         geboortedatum = gd;
+
     }
 
     public int getReiziger_id() {

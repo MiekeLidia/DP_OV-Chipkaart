@@ -1,6 +1,7 @@
 package DAOPclasses;
 
 import classes.Reiziger;
+import interfaces.AdresDAO;
 import interfaces.ReizigerDAO;
 
 import java.sql.*;
@@ -9,6 +10,7 @@ import java.util.List;
 
 public class ReizigerDAOPsql implements ReizigerDAO{
     private Connection connection;
+    private AdresDAO adao;
     private List<Reiziger> lijstReiziger = new ArrayList<>();
 
     public ReizigerDAOPsql(Connection conn){
@@ -28,7 +30,7 @@ public class ReizigerDAOPsql implements ReizigerDAO{
             ps.setString(3, reiziger.getTussenvoegsel());
             ps.setString(4, reiziger.getAchternaam());
             ps.setDate(5, (Date) reiziger.getGeboortedatum());
-            ps.executeQuery();
+            ps.executeUpdate();
             return true;
 
         } catch (SQLException sqlex) {
@@ -42,10 +44,15 @@ public class ReizigerDAOPsql implements ReizigerDAO{
     public boolean update(Reiziger reiziger) {
         //"UPDATE reiziger SET ....."
         try {
-            String query = "UPDATE reiziger SET achternaam = 'Lijn' WHERE reiziger_id = ?";
+            String query = "UPDATE reiziger SET voorletters = ?, tussenvoegsel = ?, achternaam = ?, geboortedatum = ?  WHERE reiziger_id = ?";
             PreparedStatement ps = connection.prepareStatement(query);
-            ps.setInt(1, reiziger.getReiziger_id());
-            ps.executeQuery();
+            ps.setString(1, reiziger.getVoorletters());
+            ps.setString(2, reiziger.getTussenvoegsel());
+            ps.setString(3, reiziger.getAchternaam());
+            ps.setDate(4, (Date) reiziger.getGeboortedatum());
+            ps.setInt(5, reiziger.getReiziger_id());
+            ps.executeUpdate();
+            ps.close();
             return true;
 
         } catch (SQLException sqlex) {
@@ -61,9 +68,9 @@ public class ReizigerDAOPsql implements ReizigerDAO{
             String query = "DELETE FROM reiziger WHERE reiziger_id = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, reiziger.getReiziger_id());
-            ps.executeQuery();
+            ps.executeUpdate();
+            ps.close();
             return true;
-
         } catch (SQLException sqlex) {
             System.err.println("kan niet worden verwijderd " + sqlex.getMessage());
             return false;
@@ -72,19 +79,26 @@ public class ReizigerDAOPsql implements ReizigerDAO{
 
 
     @Override
-    public boolean findById(int id) {
-        //"SELECT *  FROM reiziger WHERE reiziger_id = id"
+    public Reiziger findById(int id) {
         try {
             String query = "SELECT * FROM reiziger WHERE reiziger_id = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            Reiziger newReiziger = new Reiziger((rs.getInt("reiziger_id")),  rs.getString("voorletters"), rs.getString("tussenvoegsel"), rs.getString("achternaam"), rs.getDate("geboortedatum"));
-            System.out.println(newReiziger);
-            return true;
+            if (rs.next()) {
+                Reiziger newReiziger = new Reiziger((rs.getInt("reiziger_id")),
+                        rs.getString("voorletters"),
+                        rs.getString("tussenvoegsel"),
+                        rs.getString("achternaam"),
+                        rs.getDate("geboortedatum"));
+                return newReiziger;
+            }else {
+                System.err.println("reiziger met dit id kan niet worden gevonden");
+                return null;
+            }
         }catch (SQLException sqlex) {
             System.err.println("reiziger met dit id kan niet worden gevonden" + sqlex.getMessage());
-            return false;
+            return null;
         }
     }
 
@@ -118,6 +132,7 @@ public class ReizigerDAOPsql implements ReizigerDAO{
             while (rs.next()){
                 Reiziger newReiziger = new Reiziger((rs.getInt("reiziger_id")),  rs.getString("voorletters"), rs.getString("tussenvoegsel"), rs.getString("achternaam"), rs.getDate("geboortedatum"));
                 lijstReiziger.add(newReiziger);
+
 
             }
             return lijstReiziger;
